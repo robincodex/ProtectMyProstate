@@ -4,36 +4,41 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProtectMyProstate"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         Title="保护前列腺计划" Height="283" Width="340" FontFamily="Microsoft Yahei"
         >
     <Grid>
+        <tb:TaskbarIcon x:Name="TaskbarIcon" ToolTipText="为了前列腺" IconSource="prostate-cancer.ico">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="剩余工作时间" x:Name="RemaingWorkTime" />
+                    <MenuItem Header="设置" Click="OpenSettings" />
+                    <MenuItem Header="开始" Click="MenuItem_Start" />
+                    <MenuItem Header="停止" Click="MenuItem_Stop" />
+                    <MenuItem Header="退出" Click="MenuItem_Exit" />
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
+        <StackPanel Margin="10,10,10,10" Grid.Column="0" Grid.ColumnSpan="3">
+            <TextBlock Margin="0,0,0,2">工作时长（小时）</TextBlock>
+            <TextBox Padding="5" x:Name="WorkDuration" PreviewTextInput="RequireNumberInput" />
+        </StackPanel>
+        <StackPanel Margin="10,10,10,10" Grid.Row="1" Grid.ColumnSpan="3">
+            <TextBlock Margin="0,0,0,2">休息时长（分钟）</TextBlock>
+            <TextBox Padding="5" x:Name="RestDuration" PreviewTextInput="RequireNumberInput" />
+        </StackPanel>
+        <StackPanel Margin="10,10,10,10" Grid.Row="2" Grid.ColumnSpan="3">
+            <TextBlock Margin="0,0,0,2">再敲一会（分钟）</TextBlock>
+            <TextBox Padding="5" x:Name="ContinueDuration" PreviewTextInput="RequireNumberInput" />
+        </StackPanel >
+        <Button Margin="10,10,10,10" Grid.Row="3" Grid.ColumnSpan="3"
+                Click="SaveSettingsAndStart">开始</Button>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <StackPanel Margin="10,10,10,10" Grid.Column="0" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">工作时长（小时）</TextBlock>
-            <TextBox Padding="5"></TextBox>
-        </StackPanel>
-        <StackPanel Margin="10,10,10,10" Grid.Row="1" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">休息时长（分钟）</TextBlock>
-            <TextBox Padding="5"></TextBox>
-        </StackPanel>
-        <StackPanel Margin="10,10,10,10" Grid.Row="1" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">休息时长（分钟）</TextBlock>
-            <TextBox Padding="5"></TextBox>
-        </StackPanel>
-        <StackPanel Margin="10,10,10,10" Grid.Row="1" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">休息时长（分钟）</TextBlock>
-            <TextBox Padding="5"></TextBox>
-        </StackPanel>
-        <StackPanel Margin="10,10,10,10" Grid.Row="2" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">再敲一会（分钟）</TextBlock>
-            <TextBox Padding="5"></TextBox>
-        </StackPanel >
-        <Button Margin="10,10,10,10" Grid.Row="3" Grid.ColumnSpan="3">开始</Button>
     </Grid>
 </Window>
