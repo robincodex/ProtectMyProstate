@@ -13,6 +13,7 @@ namespace ProtectMyProstate
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
+            Topmost = true;
         }
 
         public void SetRestTime(float seconds)
