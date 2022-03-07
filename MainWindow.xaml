@@ -6,32 +6,29 @@
         xmlns:local="clr-namespace:ProtectMyProstate"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
-        Title="保护前列腺计划" Height="283" Width="340" FontFamily="Microsoft Yahei"
+        Title="保护前列腺计划" Height="200" Width="340" FontFamily="Microsoft Yahei"
         >
     <Grid>
-        <tb:TaskbarIcon x:Name="TaskbarIcon" ToolTipText="为了前列腺" IconSource="prostate-cancer.ico">
+        <tb:TaskbarIcon x:Name="TaskbarIcon" ToolTipText="为了前列腺" IconSource="pack://Application:,,,/Resource/table.ico">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="剩余工作时间" x:Name="RemaingWorkTime" />
                     <MenuItem Header="设置" Click="OpenSettings" />
-                    <MenuItem Header="开始" Click="MenuItem_Start" />
+                    <MenuItem Header="开始坐下" Click="MenuItem_Start" />
+                    <MenuItem Header="开始站着" Click="MenuItem_StartStand" />
                     <MenuItem Header="停止" Click="MenuItem_Stop" />
                     <MenuItem Header="退出" Click="MenuItem_Exit" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
         <StackPanel Margin="10,10,10,10" Grid.Column="0" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">工作时长（小时）</TextBlock>
-            <TextBox Padding="5" x:Name="WorkDuration" PreviewTextInput="RequireNumberInput" />
+            <TextBlock Margin="0,0,0,2">坐着时长（小时）</TextBlock>
+            <TextBox Padding="5" x:Name="SitDuration" PreviewTextInput="RequireNumberInput" />
         </StackPanel>
         <StackPanel Margin="10,10,10,10" Grid.Row="1" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">休息时长（分钟）</TextBlock>
-            <TextBox Padding="5" x:Name="RestDuration" PreviewTextInput="RequireNumberInput" />
+            <TextBlock Margin="0,0,0,2">站着时长（分钟）</TextBlock>
+            <TextBox Padding="5" x:Name="StandDuration" PreviewTextInput="RequireNumberInput" />
         </StackPanel>
-        <StackPanel Margin="10,10,10,10" Grid.Row="2" Grid.ColumnSpan="3">
-            <TextBlock Margin="0,0,0,2">再敲一会（分钟）</TextBlock>
-            <TextBox Padding="5" x:Name="ContinueDuration" PreviewTextInput="RequireNumberInput" />
-        </StackPanel >
         <Button Margin="10,10,10,10" Grid.Row="3" Grid.ColumnSpan="3"
                 Click="SaveSettingsAndStart">开始</Button>
         <Grid.RowDefinitions>

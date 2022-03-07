@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ProtectMyProstate
 {
@@ -16,11 +19,12 @@ namespace ProtectMyProstate
             Topmost = true;
         }
 
-        public void SetRestTime(float seconds)
+        public void SetContent(string imgSrc, string text)
         {
-            var minute = (int)(seconds / 60);
-            var secs = (int)(seconds - minute * 60);
-            RestTime.Text = String.Format("休息倒计时 {0:D2}:{1:D2}", minute, secs);
+            var Icon = (Image)FindName("Icon");
+            Icon.Source = new BitmapImage(new Uri(imgSrc, UriKind.Relative));
+            var Title = (TextBlock)FindName("Title");
+            Title.Text = text;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

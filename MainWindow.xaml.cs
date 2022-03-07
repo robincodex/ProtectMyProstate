@@ -7,20 +7,20 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace ProtectMyProstate
 {
     class Settings
     {
-        public float WorkDuration { get; set; }
-        public float RestDuration { get; set; }
-        public float ContinueDuration { get; set; }
+        public float SitDuration { get; set; }
+        public float StandDuration { get; set; }
     }
 
     enum ProtectState
     {
-        Work,
-        Rest
+        Sit,
+        Stand
     }
 
     /// <summary>
@@ -34,7 +34,6 @@ namespace ProtectMyProstate
         private DateTime CurrentEndTime { get; set; }
         private bool Stop { get; set; }
 
-        private static double Hour { get { return 3600.0; } }
         private static double Minute { get { return 60.0; } }
         private RestWindow RestWindow { get; set; }
 
@@ -55,32 +54,29 @@ namespace ProtectMyProstate
             {
                 ProjectSettings = new Settings
                 {
-                    WorkDuration = 2,
-                    RestDuration = 15,
-                    ContinueDuration = 20
+                    SitDuration = 45,
+                    StandDuration = 15,
                 };
                 var str = JsonConvert.SerializeObject(ProjectSettings);
                 File.WriteAllText("config.json", str);
             }
 
             // 初始化组件内的值
-            var WorkDuration = (TextBox)FindName("WorkDuration");
-            WorkDuration.Text = ProjectSettings.WorkDuration.ToString();
-            var RestDuration = (TextBox)FindName("RestDuration");
-            RestDuration.Text = ProjectSettings.RestDuration.ToString();
-            var ContinueDuration = (TextBox)FindName("ContinueDuration");
-            ContinueDuration.Text = ProjectSettings.ContinueDuration.ToString();
+            var SitDuration = (TextBox)FindName("SitDuration");
+            SitDuration.Text = ProjectSettings.SitDuration.ToString();
+            var StandDuration = (TextBox)FindName("StandDuration");
+            StandDuration.Text = ProjectSettings.StandDuration.ToString();
 
             StateChanged += WindowStateChanged;
 
             RestWindow = new RestWindow();
             RestWindow.ContinueEvent += delegate
             {
-                Continue();
+                this.OnContinue();
             };
 
-            ProtectState = ProtectState.Work;
-            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.WorkDuration * Hour);
+            ProtectState = ProtectState.Sit;
+            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.SitDuration * Minute);
 
             TaskTimer = new Timer
             {
@@ -88,6 +84,15 @@ namespace ProtectMyProstate
             };
             TaskTimer.Elapsed += OnUpdate;
             TaskTimer.Start();
+
+            SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        }
+        private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            if(e.Mode == PowerModes.Resume)
+            {
+                Restart();
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -133,12 +138,10 @@ namespace ProtectMyProstate
         // 保存配置并开始
         private void SaveSettingsAndStart(object sender, RoutedEventArgs e)
         {
-            var WorkDuration = (TextBox)FindName("WorkDuration");
-            ProjectSettings.WorkDuration = float.Parse(WorkDuration.Text);
-            var RestDuration = (TextBox)FindName("RestDuration");
-            ProjectSettings.RestDuration = float.Parse(RestDuration.Text);
-            var ContinueDuration = (TextBox)FindName("ContinueDuration");
-            ProjectSettings.ContinueDuration = float.Parse(ContinueDuration.Text);
+            var SitDuration = (TextBox)FindName("SitDuration");
+            ProjectSettings.SitDuration = float.Parse(SitDuration.Text);
+            var StandDuration = (TextBox)FindName("StandDuration");
+            ProjectSettings.StandDuration = float.Parse(StandDuration.Text);
             var str = JsonConvert.SerializeObject(ProjectSettings);
             File.WriteAllText("config.json", str);
             WindowState = WindowState.Minimized;
@@ -155,8 +158,8 @@ namespace ProtectMyProstate
         private void Restart()
         {
             Stop = false;
-            ProtectState = ProtectState.Work;
-            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.WorkDuration * Hour);
+            ProtectState = ProtectState.Sit;
+            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.SitDuration * Minute);
             Dispatcher.Invoke(new Action(
                 delegate
                 {
@@ -165,18 +168,32 @@ namespace ProtectMyProstate
             ));
         }
 
-        // 再敲一会
-        private void Continue()
+        private void RestartToStand()
         {
             Stop = false;
-            ProtectState = ProtectState.Work;
-            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.ContinueDuration * Minute);
+            ProtectState = ProtectState.Stand;
+            CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.StandDuration * Minute);
             Dispatcher.Invoke(new Action(
                 delegate
                 {
                     RestWindow.Hide();
                 }
             ));
+        }
+
+        private void OnContinue()
+        {
+            if (ProtectState == ProtectState.Sit)
+            {
+                CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.StandDuration * Minute);
+                ProtectState = ProtectState.Stand;
+            }
+            else if (ProtectState == ProtectState.Stand)
+            {
+                CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.SitDuration * Minute);
+                ProtectState = ProtectState.Sit;
+            }
+            RestWindow.Hide();
         }
 
         private void OnUpdate(object sender, ElapsedEventArgs e)
@@ -189,67 +206,46 @@ namespace ProtectMyProstate
             var remaingTime = (CurrentEndTime - DateTime.Now).TotalSeconds;
             if (remaingTime <= 0)
             {
-                if (ProtectState == ProtectState.Work)
+                if (ProtectState == ProtectState.Sit)
                 {
-                    CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.RestDuration * Minute);
-                    ProtectState = ProtectState.Rest;
                     Dispatcher.Invoke(new Action(
                         delegate
                         {
                             RestWindow.Show();
-                            RestWindow.SetRestTime((float)(CurrentEndTime - DateTime.Now).TotalSeconds);
+                            RestWindow.SetContent("/Resource/站立.png", "站起来了!");
                         }
                     ));
-                }
-                else if (ProtectState == ProtectState.Rest)
+                } else
                 {
-                    CurrentEndTime = DateTime.Now.AddSeconds(ProjectSettings.WorkDuration * Hour);
-                    ProtectState = ProtectState.Work;
                     Dispatcher.Invoke(new Action(
                         delegate
                         {
-                            RestWindow.Hide();
+                            RestWindow.Show();
+                            RestWindow.SetContent("/Resource/半蹲.png", "可以坐下了~");
                         }
                     ));
                 }
             }
 
-            if (ProtectState == ProtectState.Work)
-            {
-                var hour = (int)(remaingTime / 3600);
-                var minute = (int)((remaingTime - hour * 3600) / 60);
-                var secs = (int)(remaingTime - hour * 3600 - minute * 60);
-                Dispatcher.Invoke(new Action(
-                    delegate
-                    {
-                        RemaingWorkTime.Header = String.Format("{0:D2}:{1:D2}:{2:D2}", hour, minute, secs);
-                    }
-                ));
-            }
-            else
-            {
-                Dispatcher.Invoke(new Action(
-                    delegate
-                    {
-                        RemaingWorkTime.Header = String.Format("{0:D2}:{1:D2}:{2:D2}", 0, 0, 0);
-                    }
-                ));
-            }
-
-            if (RestWindow.Visibility == Visibility.Visible && remaingTime >= 0)
-            {
-                Dispatcher.Invoke(new Action(
-                    delegate
-                    {
-                        RestWindow.SetRestTime((float)(remaingTime));
-                    }
-                ));
-            }
+            var hour = (int)(remaingTime / 3600);
+            var minute = (int)((remaingTime - hour * 3600) / 60);
+            var secs = (int)(remaingTime - hour * 3600 - minute * 60);
+            Dispatcher.Invoke(new Action(
+                delegate
+                {
+                    RemaingWorkTime.Header = String.Format("{0:D2}:{1:D2}:{2:D2}", hour, minute, secs);
+                }
+            ));
         }
 
         private void MenuItem_Start(object sender, RoutedEventArgs e)
         {
             Restart();
+        }
+
+        private void MenuItem_StartStand(object sender, RoutedEventArgs e)
+        {
+            RestartToStand();
         }
 
         private void MenuItem_Stop(object sender, RoutedEventArgs e)

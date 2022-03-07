@@ -5,11 +5,20 @@
     <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>prostate-cancer.ico</ApplicationIcon>
+    <ApplicationIcon>Resource\table.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="prostate-cancer.ico" />
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
+    <Page Remove="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resource\table.ico" />
+    <None Remove="Resource\半蹲.png" />
+    <None Remove="Resource\站立.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,12 +27,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
-    <Folder Include="Resources\" />
+    <Resource Include="Resource\table.ico" />
+    <Resource Include="Resource\半蹲.png" />
+    <Resource Include="Resource\站立.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="prostate-cancer.ico" />
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
