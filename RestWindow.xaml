@@ -14,7 +14,7 @@
             <Image x:Name="Icon" Source="Resource/站立.png" Width="100" />
             <StackPanel VerticalAlignment="Center" Margin="50">
                 <TextBlock x:Name="Title" FontSize="30" Margin="20" >升高或降低桌子</TextBlock>
-                <Button Focusable="False" FontSize="20" Width="100" Click="Button_Click">继续</Button>
+                <Button x:Name="ContinueButton" Focusable="False" FontSize="20" Width="100" Click="Button_Click">继续</Button>
             </StackPanel>
         </StackPanel>
     </Grid>

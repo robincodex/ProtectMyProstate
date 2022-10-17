@@ -25,10 +25,20 @@ namespace ProtectMyProstate
             Icon.Source = new BitmapImage(new Uri(imgSrc, UriKind.Relative));
             var Title = (TextBlock)FindName("Title");
             Title.Text = text;
+            count = 0;
         }
+
+        private int count = 0;
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if(count <= 2)
+            {
+                count++;
+                var btn = (Button)FindName("ContinueButton");
+                btn.Content = count;
+                return;
+            }
             ContinueEvent?.Invoke();
         }
     }

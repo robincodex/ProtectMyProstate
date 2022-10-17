@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using System.Linq;
 
 namespace ProtectMyProstate
 {
@@ -36,6 +37,7 @@ namespace ProtectMyProstate
 
         private static double Minute { get { return 60.0; } }
         private RestWindow RestWindow { get; set; }
+        private bool IsOpenRestWindow { get; set; }
 
         public MainWindow()
         {
@@ -43,6 +45,7 @@ namespace ProtectMyProstate
             InitializeComponent();
             Hide();
             Stop = false;
+            IsOpenRestWindow = false;
 
             // 读取配置文件
             if (File.Exists("config.json"))
@@ -52,11 +55,19 @@ namespace ProtectMyProstate
             }
             else
             {
+            #if DEBUG
+                ProjectSettings = new Settings
+                {
+                    SitDuration = 0.15f,
+                    StandDuration = 0.15f,
+                };
+            #else
                 ProjectSettings = new Settings
                 {
                     SitDuration = 45,
                     StandDuration = 15,
                 };
+            #endif
                 var str = JsonConvert.SerializeObject(ProjectSettings);
                 File.WriteAllText("config.json", str);
             }
@@ -194,6 +205,7 @@ namespace ProtectMyProstate
                 ProtectState = ProtectState.Sit;
             }
             RestWindow.Hide();
+            IsOpenRestWindow = false;
         }
 
         private void OnUpdate(object sender, ElapsedEventArgs e)
@@ -206,6 +218,10 @@ namespace ProtectMyProstate
             var remaingTime = (CurrentEndTime - DateTime.Now).TotalSeconds;
             if (remaingTime <= 0)
             {
+                if (IsOpenRestWindow)
+                {
+                    return;
+                }
                 if (ProtectState == ProtectState.Sit)
                 {
                     Dispatcher.Invoke(new Action(
@@ -215,6 +231,7 @@ namespace ProtectMyProstate
                             RestWindow.SetContent("/Resource/站立.png", "站起来了!");
                         }
                     ));
+                    IsOpenRestWindow = true;
                 } else
                 {
                     Dispatcher.Invoke(new Action(
@@ -224,6 +241,7 @@ namespace ProtectMyProstate
                             RestWindow.SetContent("/Resource/半蹲.png", "可以坐下了~");
                         }
                     ));
+                    IsOpenRestWindow = true;
                 }
             }
 
